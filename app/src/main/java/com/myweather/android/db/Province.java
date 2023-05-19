@@ -1,5 +1,7 @@
 package com.myweather.android.db;
 
+import org.litepal.crud.DataSupport;
+
 public class Province extends DataSupport {
 
     private int id;
@@ -19,7 +21,7 @@ public class Province extends DataSupport {
     }
 
     public void setProvinceName(String provinceName) {
-        this.provinceName = provinceName
+        this.provinceName = provinceName;
     }
 
     public int getProvinceCode() {

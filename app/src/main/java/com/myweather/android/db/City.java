@@ -1,5 +1,7 @@
 package com.myweather.android.db;
 
+import org.litepal.crud.DataSupport;
+
 public class City extends DataSupport {
 
     private int id;
