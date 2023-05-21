@@ -13,6 +13,9 @@
         android:theme="@style/Theme.MyWeather"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".WeatherActivity"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -21,6 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        </application>
+    </application>
 
 </manifest>
