@@ -1,4 +1,4 @@
-package com.myweather.android;
+package com.myweather.android.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -16,12 +16,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myweather.android.R;
 import com.myweather.android.gson.Forecast;
 import com.myweather.android.gson.Weather;
 import com.myweather.android.util.HttpUtil;
 import com.myweather.android.util.Utility;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -32,8 +36,11 @@ public class WeatherActivity extends AppCompatActivity {
     private ScrollView weatherLayout;
     private TextView titleCity;
     private TextView titleUpdateTime;
+
+    private TextView cityText;
     private TextView degreeText;
     private TextView weatherInfoText;
+
     private LinearLayout forecastLayout;
     private TextView aqiText;
     private TextView pm25Text;
@@ -56,8 +63,11 @@ public class WeatherActivity extends AppCompatActivity {
         weatherLayout = findViewById(R.id.weather_layout);
         titleCity =  findViewById(R.id.title_city);
         titleUpdateTime = findViewById(R.id.title_update_time);
+
+        cityText = findViewById(R.id.city_text);
         degreeText = findViewById(R.id.degree_text);
         weatherInfoText = findViewById(R.id.weather_info_text);
+
         forecastLayout = findViewById(R.id.forecast_layout);
         aqiText =  findViewById(R.id.aqi_text);
         pm25Text =  findViewById(R.id.pm25_text);
@@ -99,7 +109,7 @@ public class WeatherActivity extends AppCompatActivity {
         });
     }
 
-    // 根据天气id请求城市天气信息
+    // 根据天气 id 请求城市天气信息
     public void requestWeather(final String weatherID) {
         String weatherUrl = "http://guolin.tech/api/weather?cityid=" +
                 weatherID + "&key=59a8868daaa343d5a1ba7e0543d12950";
@@ -146,13 +156,16 @@ public class WeatherActivity extends AppCompatActivity {
     private void showWeatherInfo(Weather weather) {
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1];
-        String degree = weather.now.temperature + "℃";
-        String weatherInfo = weather.now.more.info;
+        String degree = weather.now.temperature;
+        String weatherInfo = weather.now.more.info + "  空气" + weather.aqi.city.qlty;
 
         titleCity.setText(cityName);
         titleUpdateTime.setText(updateTime);
+
+        cityText.setText(cityName);
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
+
         forecastLayout.removeAllViews();
         for (Forecast forecast: weather.forecastList) {
             View view = LayoutInflater.from(this).
@@ -160,13 +173,23 @@ public class WeatherActivity extends AppCompatActivity {
 
             TextView dateText = view.findViewById(R.id.date_text);
             TextView infoText = view.findViewById(R.id.info_text);
-            TextView maxText = view.findViewById(R.id.max_text);
-            TextView minText = view.findViewById(R.id.min_text);
+            TextView maxminText = view.findViewById(R.id.max_min_text);
 
-            dateText.setText(forecast.date);
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("M月d日");
+            try {
+                Date date = inputDateFormat.parse(forecast.date);
+                String dateStr = outputDateFormat.format(date);
+                dateText.setText(dateStr);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
             infoText.setText(forecast.more.info);
-            maxText.setText(forecast.temperature.max);
-            minText.setText(forecast.temperature.min);
+
+            String maxmin = forecast.temperature.max + " / " + forecast.temperature.min + "℃";
+            maxminText.setText(maxmin);
+
             forecastLayout.addView(view);
         }
 

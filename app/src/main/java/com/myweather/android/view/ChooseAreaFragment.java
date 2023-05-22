@@ -1,4 +1,4 @@
-package com.myweather.android;
+package com.myweather.android.view;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -93,8 +93,6 @@ public class ChooseAreaFragment extends Fragment {
                         activity.swipeRefresh.setRefreshing(true);
                         activity.requestWeather(weatherID);
                     }
-
-
                 }
             }
         });

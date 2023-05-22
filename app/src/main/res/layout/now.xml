@@ -1,24 +1,45 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="15dp">
 
     <TextView
+        android:id="@+id/city_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:textSize="20sp"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
         android:id="@+id/degree_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
+        android:layout_below="@id/city_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-15dp"
         android:textColor="#fff"
-        android:textSize="60sp" />
+        android:textSize="120sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/degree_text"
+        android:layout_marginTop="35dp"
+        android:layout_toEndOf="@id/degree_text"
+        android:text="℃"
+        android:textColor="#fff"
+        android:textSize="17sp" />
 
     <TextView
         android:id="@+id/weather_info_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
+        android:layout_below="@id/degree_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-10dp"
         android:textColor="#fff"
-        android:textSize="20sp" />
+        android:textSize="16sp" />
 
-</LinearLayout>
+</RelativeLayout>
