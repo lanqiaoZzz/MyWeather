@@ -5,7 +5,7 @@
     android:layout_margin="15dp">
 
     <TextView
-        android:id="@+id/city_text"
+        android:id="@+id/county_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#fff"
@@ -16,7 +16,7 @@
         android:id="@+id/degree_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/city_text"
+        android:layout_below="@id/county_text"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="-15dp"
         android:textColor="#fff"
@@ -32,14 +32,31 @@
         android:textColor="#fff"
         android:textSize="17sp" />
 
-    <TextView
-        android:id="@+id/weather_info_text"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_below="@id/degree_text"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="-10dp"
-        android:textColor="#fff"
-        android:textSize="16sp" />
+        android:layout_marginTop="-10dp">
+
+        <TextView
+            android:id="@+id/weather_info_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/air_info_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+
+
 
 </RelativeLayout>

@@ -23,7 +23,7 @@ import com.myweather.android.db.City;
 import com.myweather.android.db.County;
 import com.myweather.android.db.Province;
 import com.myweather.android.util.HttpUtil;
-import com.myweather.android.util.Utility;
+import com.myweather.android.util.ResponseUtil;
 
 import org.litepal.crud.DataSupport;
 
@@ -81,7 +81,9 @@ public class ChooseAreaFragment extends Fragment {
                     selectedCity = cityList.get(position);
                     queryCounties();
                 } else if (currentLevel == LEVEL_COUNTY) {
-                    String weatherID = countyList.get(position).getWeatherID();
+                    String countyName = countyList.get(position).getCountyName();
+                    WeatherActivity.setCountyName(countyName);
+                    String weatherID = countyList.get(position).getWeatherID().substring(2);
                     if (getActivity() instanceof MainActivity) {
                         Intent intent = new Intent(getActivity(), WeatherActivity.class);
                         intent.putExtra("weather_id", weatherID);
@@ -181,11 +183,11 @@ public class ChooseAreaFragment extends Fragment {
                 String responseText = response.body().string();
                 boolean result = false;
                 if ("province".equals(type)) {
-                    result = Utility.handleProvinceResponse(responseText);
+                    result = ResponseUtil.handleProvinceResponse(responseText);
                 } else if ("city".equals(type)) {
-                    result = Utility.handleCityResponse(responseText, selectedProvince.getId());
+                    result = ResponseUtil.handleCityResponse(responseText, selectedProvince.getId());
                 } else if ("county".equals(type)) {
-                    result = Utility.handleCountyResponse(responseText, selectedCity.getId());
+                    result = ResponseUtil.handleCountyResponse(responseText, selectedCity.getId());
                 }
                 if (result) {
                     getActivity().runOnUiThread(new Runnable() {
