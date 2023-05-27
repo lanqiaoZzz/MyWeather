@@ -14,6 +14,8 @@ public class WeatherNow {
         @SerializedName("temp")
         public String temperature;
 
+        public String icon;
+
         @SerializedName("text")
         public String info;
     }

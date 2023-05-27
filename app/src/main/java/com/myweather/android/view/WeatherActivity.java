@@ -6,12 +6,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import com.myweather.android.gson.WeatherForecast;
 import com.myweather.android.gson.WeatherNow;
 import com.myweather.android.util.ContentUtil;
 import com.myweather.android.util.HttpUtil;
+import com.myweather.android.util.IconUtil;
 import com.myweather.android.util.MultiRequestCallback;
 import com.myweather.android.util.ResponseUtil;
 import com.myweather.android.util.Utility;
@@ -31,7 +35,9 @@ import com.myweather.android.util.Utility;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +45,8 @@ import java.util.Map;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
+
+    private FrameLayout frameLayout;
 
     private ScrollView weatherLayout;
     private TextView titleCity;
@@ -73,6 +81,8 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+
+        frameLayout = findViewById(R.id.frame_layout);
 
         weatherLayout = findViewById(R.id.weather_layout);
         weatherLayout.setVisibility(View.INVISIBLE);
@@ -202,9 +212,19 @@ public class WeatherActivity extends AppCompatActivity {
 
                 String degree = weatherNow.now.temperature;
                 String weatherInfo = weatherNow.now.info;
-
                 degreeText.setText(degree);
                 weatherInfoText.setText(weatherInfo);
+
+                Calendar calendar = Calendar.getInstance();
+                int hourNow = calendar.get(Calendar.HOUR_OF_DAY) + 1;
+
+                if (hourNow > 6 && hourNow < 19) {
+                    // 白天
+                    frameLayout.setBackgroundResource(IconUtil.getDayBack(weatherNow.now.icon));
+                } else {
+                    // 夜晚
+                    frameLayout.setBackgroundResource(IconUtil.getNightBack(weatherNow.now.icon));
+                }
             } else {
                 Toast.makeText(WeatherActivity.this,
                         "获取实时天气信息失败", Toast.LENGTH_SHORT).show();
@@ -212,6 +232,7 @@ public class WeatherActivity extends AppCompatActivity {
         });
     }
 
+    // 展示城市天气质量信息
     public void showAirNowInfo(String responseText) {
         AirNow airNow =
                 ResponseUtil.handleWeatherResponse(responseText, AirNow.class);
@@ -248,21 +269,64 @@ public class WeatherActivity extends AppCompatActivity {
 
                     View view = LayoutInflater.from(this).
                             inflate(R.layout.forecast_item, forecastLayout, false);
+                    TextView dayOfWeekText = view.findViewById(R.id.day_of_week_text);
                     TextView dateText = view.findViewById(R.id.date_text);
-                    TextView infoText = view.findViewById(R.id.info_text);
+                    ImageView iconWeather = view.findViewById(R.id.icon_weather);
                     TextView maxminText = view.findViewById(R.id.max_min_text);
 
-                    SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    SimpleDateFormat outputDateFormat = new SimpleDateFormat("M月d日");
                     try {
+                        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         Date date = inputDateFormat.parse(weatherForecastItem.fxDate);
-                        String dateStr = outputDateFormat.format(date);
-                        dateText.setText(dateStr);
+
+                        if(i == 1) {
+                            dayOfWeekText.setText("明天");
+                        } else {
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+                            switch (dayOfWeek) {
+                                case 0:
+                                    dayOfWeekText.setText("周日");
+                                    break;
+                                case 1:
+                                    dayOfWeekText.setText("周一");
+                                    break;
+                                case 2:
+                                    dayOfWeekText.setText("周二");
+                                    break;
+                                case 3:
+                                    dayOfWeekText.setText("周三");
+                                    break;
+                                case 4:
+                                    dayOfWeekText.setText("周四");
+                                    break;
+                                case 5:
+                                    dayOfWeekText.setText("周五");
+                                    break;
+                                default:
+                                    dayOfWeekText.setText("周六");
+                            }
+                        }
+
+                        SimpleDateFormat outputDateFormat = new SimpleDateFormat("M月d日");
+                        dateText.setText(outputDateFormat.format(date));
+
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
 
-                    infoText.setText(weatherForecastItem.textDay);
+                    Calendar calendar = Calendar.getInstance();
+                    int hourNow = calendar.get(Calendar.HOUR_OF_DAY) + 1;
+
+                    if (hourNow > 6 && hourNow < 19) {
+                        // 白天
+                        iconWeather.setImageResource(
+                                IconUtil.getDayIcon(weatherForecastItem.iconDay));
+                    } else {
+                        // 夜晚
+                        iconWeather.setImageResource(
+                                IconUtil.getNightIcon(weatherForecastItem.iconNight));
+                    }
 
                     String maxmin = weatherForecastItem.tempMax + " / " + weatherForecastItem.tempMin + "℃";
                     maxminText.setText(maxmin);

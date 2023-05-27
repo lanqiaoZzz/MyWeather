@@ -8,5 +8,7 @@ public class Daily {
     public String tempMin;
 
     public String iconDay;
+    public String iconNight;
+
     public String textDay;
 }
