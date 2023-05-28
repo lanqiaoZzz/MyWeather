@@ -1,4 +1,4 @@
-package com.myweather.android.view;
+package com.myweather.android.view.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -6,10 +6,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -31,11 +29,11 @@ import com.myweather.android.util.IconUtil;
 import com.myweather.android.util.MultiRequestCallback;
 import com.myweather.android.util.ResponseUtil;
 import com.myweather.android.util.Utility;
+import com.myweather.android.view.AirQualityView;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -58,11 +56,15 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView airInfoText;
 
     private LinearLayout forecastLayout;
-    private TextView aqiText;
     private TextView pm25Text;
     private TextView comfortText;
     private TextView carWashText;
     private TextView sportText;
+
+    private AirQualityView airQualityView;
+    private TextView aqiText;
+    private TextView aqiInfoText;
+
 
     public SwipeRefreshLayout swipeRefresh;
     private String mWeatherID;
@@ -96,11 +98,13 @@ public class WeatherActivity extends AppCompatActivity {
         airInfoText = findViewById(R.id.air_info_text);
 
         forecastLayout = findViewById(R.id.forecast_layout);
-        aqiText =  findViewById(R.id.aqi_text);
-        pm25Text =  findViewById(R.id.pm25_text);
         comfortText = findViewById(R.id.comfort_text);
         carWashText = findViewById(R.id.car_wash_text);
         sportText = findViewById(R.id.sport_text);
+
+        airQualityView = findViewById(R.id.air_quality_view);
+        aqiText = findViewById(R.id.aqi_text);
+        aqiInfoText = findViewById(R.id.aqi_info_text);
 
         swipeRefresh = findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -245,6 +249,11 @@ public class WeatherActivity extends AppCompatActivity {
 
                 String airInfo = "  空气" + airNow.now.category;
                 airInfoText.setText(airInfo);
+
+                airQualityView.setCurrentAQI(Integer.parseInt(airNow.now.aqi));
+                aqiText.setText("当前 AQI 指数为 " + airNow.now.aqi);
+                aqiInfoText.setText(Utility.getAQIText(Integer.parseInt(airNow.now.aqi)).second);
+
             } else {
                 Toast.makeText(WeatherActivity.this,
                         "获取空气质量信息失败", Toast.LENGTH_SHORT).show();

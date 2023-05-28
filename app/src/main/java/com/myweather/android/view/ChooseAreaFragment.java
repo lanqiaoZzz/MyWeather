@@ -24,6 +24,8 @@ import com.myweather.android.db.County;
 import com.myweather.android.db.Province;
 import com.myweather.android.util.HttpUtil;
 import com.myweather.android.util.ResponseUtil;
+import com.myweather.android.view.activity.MainActivity;
+import com.myweather.android.view.activity.WeatherActivity;
 
 import org.litepal.crud.DataSupport;
 

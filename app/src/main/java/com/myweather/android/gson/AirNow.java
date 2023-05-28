@@ -10,7 +10,7 @@ public class AirNow {
     public Now now;
 
     public class Now {
-
+        public String aqi;
         public String category;
     }
 }

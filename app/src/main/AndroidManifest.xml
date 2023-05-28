@@ -15,10 +15,10 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".view.WeatherActivity"
+            android:name=".view.activity.WeatherActivity"
             android:exported="true" />
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
