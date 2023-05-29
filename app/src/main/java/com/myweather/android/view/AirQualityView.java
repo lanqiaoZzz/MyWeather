@@ -3,10 +3,8 @@ package com.myweather.android.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.util.AttributeSet;
 import android.view.View;
@@ -70,7 +68,7 @@ public class AirQualityView extends View {
 
         String aqiValue = String.valueOf(currentAQI);
         Paint textPaint = new Paint();
-        textPaint.setColor(Color.BLACK);
+        textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(radius * 0.35f);
         textPaint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText(aqiValue, centerX, centerY + radius * 0.6f, textPaint);

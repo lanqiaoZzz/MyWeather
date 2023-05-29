@@ -1,4 +1,4 @@
-package com.myweather.android.view;
+package com.myweather.android.view.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Intent;

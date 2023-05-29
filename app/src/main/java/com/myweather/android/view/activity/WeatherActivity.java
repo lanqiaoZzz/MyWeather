@@ -30,6 +30,7 @@ import com.myweather.android.util.MultiRequestCallback;
 import com.myweather.android.util.ResponseUtil;
 import com.myweather.android.util.Utility;
 import com.myweather.android.view.AirQualityView;
+import com.myweather.android.view.SunArcView;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -65,6 +66,8 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView aqiText;
     private TextView aqiInfoText;
 
+    private SunArcView sunArcView;
+
 
     public SwipeRefreshLayout swipeRefresh;
     private String mWeatherID;
@@ -98,13 +101,12 @@ public class WeatherActivity extends AppCompatActivity {
         airInfoText = findViewById(R.id.air_info_text);
 
         forecastLayout = findViewById(R.id.forecast_layout);
-        comfortText = findViewById(R.id.comfort_text);
-        carWashText = findViewById(R.id.car_wash_text);
-        sportText = findViewById(R.id.sport_text);
 
         airQualityView = findViewById(R.id.air_quality_view);
         aqiText = findViewById(R.id.aqi_text);
         aqiInfoText = findViewById(R.id.aqi_info_text);
+
+        sunArcView = findViewById(R.id.sun_arc_view);
 
         swipeRefresh = findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
@@ -272,6 +274,10 @@ public class WeatherActivity extends AppCompatActivity {
                 editor.putString("weather_forecast", responseText);
                 editor.apply();
 
+                Daily weatherToday = weatherForecast.weatherForecastList.get(0);
+                sunArcView.setSunriseTime(weatherToday.sunrise);
+                sunArcView.setSunsetTime(weatherToday.sunset);
+
                 forecastLayout.removeAllViews();
                 for(int i = 1; i < weatherForecast.weatherForecastList.size(); i++) {
                     Daily weatherForecastItem = weatherForecast.weatherForecastList.get(i);
@@ -324,18 +330,7 @@ public class WeatherActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    Calendar calendar = Calendar.getInstance();
-                    int hourNow = calendar.get(Calendar.HOUR_OF_DAY) + 1;
-
-                    if (hourNow > 6 && hourNow < 19) {
-                        // 白天
-                        iconWeather.setImageResource(
-                                IconUtil.getDayIcon(weatherForecastItem.iconDay));
-                    } else {
-                        // 夜晚
-                        iconWeather.setImageResource(
-                                IconUtil.getNightIcon(weatherForecastItem.iconNight));
-                    }
+                    iconWeather.setImageResource(IconUtil.getDayIcon(weatherForecastItem.iconDay));
 
                     String maxmin = weatherForecastItem.tempMax + " / " + weatherForecastItem.tempMin + "℃";
                     maxminText.setText(maxmin);
