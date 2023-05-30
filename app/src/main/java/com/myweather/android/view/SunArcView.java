@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.myweather.android.R;
 import com.myweather.android.util.ContentUtil;
+import com.myweather.android.util.Utility;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,57 +31,20 @@ public class SunArcView extends View {
     private static final float STROKE_WIDTH = 3f;
     private static final float SUN_SIZE = 50f;
 
-    private Paint arcPaint;
-    private Paint sunPaint;
-    private Paint linePaint;
-    private Paint textPaint;
-
-    private Path arcPath;
-    private PathMeasure pathMeasure;
-    private RectF arcRect;
-    private Drawable sunDrawable;
-
     private String sunriseTime;
     private String sunsetTime;
 
+
     public SunArcView(Context context) {
         super(context);
-        init();
     }
 
     public SunArcView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public SunArcView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init() {
-        arcPaint = new Paint();
-        arcPaint.setStyle(Paint.Style.STROKE);
-        arcPaint.setStrokeWidth(STROKE_WIDTH);
-        arcPaint.setColor(Color.WHITE);
-        arcPaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 0));
-
-        sunPaint = new Paint();
-        sunPaint.setAntiAlias(true);
-
-        linePaint = new Paint();
-        linePaint.setColor(ContentUtil.COLOR_TRANSPARENT_WHITE);
-        linePaint.setStrokeWidth(STROKE_WIDTH);
-
-        textPaint = new Paint();
-        textPaint.setColor(ContentUtil.COLOR_TRANSPARENT_WHITE);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-
-        arcPath = new Path();
-
-        arcRect = new RectF();
-
-        sunDrawable = getResources().getDrawable(R.drawable.icon_sun);
     }
 
     public void setSunriseTime(String sunriseTime) {
@@ -93,33 +57,20 @@ public class SunArcView extends View {
     }
 
     private float getSunPositionProgress() {
-        try {
-            Calendar calendar = Calendar.getInstance();
-            int currentYear = calendar.get(Calendar.YEAR);
-            int currentMonth = calendar.get(Calendar.MONTH);
-            int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        Date sunriseDate = Utility.strToDate(sunriseTime);
+        Date sunsetDate = Utility.strToDate(sunsetTime);
+        Date now = new Date();
 
-            String sunriseTimeStr = currentYear + "-" + (currentMonth + 1) + "-" + currentDay + " " + sunriseTime + ":00";
-            String sunsetTimeStr = currentYear + "-" + (currentMonth + 1) + "-" + currentDay + " " + sunsetTime + ":00";
-
-            SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date sunrise = timeFormat.parse(sunriseTimeStr);
-            Date sunset = timeFormat.parse(sunsetTimeStr);
-            Date now = new Date();
-
-            if (now.before(sunrise) || now.after(sunset)) {
-                // 如果当前时间不在日出日落时间之间，则太阳位于左下角
-                return 0f;
-            } else {
-                long totalDuration = sunset.getTime() - sunrise.getTime();
-                long elapsedTime = now.getTime() - sunrise.getTime();
-                float progress = (float) elapsedTime / totalDuration;
-                return progress;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (now.before(sunriseDate) || now.after(sunsetDate)) {
+            // 如果当前时间不在日出日落时间之间，则太阳位于左下角
+            return 0f;
+        } else {
+            long totalDuration = sunsetDate.getTime() - sunriseDate.getTime();
+            long elapsedTime = now.getTime() - sunriseDate.getTime();
+            float progress = (float) elapsedTime / totalDuration;
+            Log.d("mydebug", String.valueOf(progress));
+            return progress;
         }
-        return -1f;
     }
 
     @Override
@@ -134,12 +85,21 @@ public class SunArcView extends View {
         float arcEndX = centerX + arcRadius;
         float arcEndY = centerY + arcRadius * 0.6f;
 
+        RectF arcRect = new RectF();
         arcRect.set(arcStartX, arcStartY, arcEndX, arcEndY);
+
+        Path arcPath = new Path();
         arcPath.addArc(arcRect, START_ANGLE, SWEEP_ANGLE);
 
-        pathMeasure = new PathMeasure(arcPath, false);
+        PathMeasure pathMeasure = new PathMeasure(arcPath, false);
 
+        // 绘制圆弧
+        Paint arcPaint = new Paint();
+        arcPaint.setStyle(Paint.Style.STROKE);
+        arcPaint.setStrokeWidth(STROKE_WIDTH);
+        arcPaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 0));
         // 绘制白色圆弧
+        arcPaint.setColor(Color.WHITE);
         canvas.drawPath(arcPath, arcPaint);
         // 绘制黄色圆弧
         arcPaint.setColor(Color.YELLOW);
@@ -148,6 +108,9 @@ public class SunArcView extends View {
         canvas.drawPath(arcPath, arcPaint);
 
         // 绘制直线
+        Paint linePaint = new Paint();
+        linePaint.setColor(ContentUtil.COLOR_TRANSPARENT_WHITE);
+        linePaint.setStrokeWidth(STROKE_WIDTH);
         float lineStartX = centerX - arcRadius * 1.2f;
         float lineStartY = centerY - arcRadius * 0.3f;
         float lineEndX = centerX + arcRadius * 1.2f;
@@ -155,6 +118,9 @@ public class SunArcView extends View {
         canvas.drawLine(lineStartX, lineStartY, lineEndX, lineEndY, linePaint);
 
         // 绘制太阳
+        Paint sunPaint = new Paint();
+        sunPaint.setAntiAlias(true);
+        Drawable sunDrawable = getResources().getDrawable(R.drawable.icon_sun);
         float[] pos = new float[2];
         pathMeasure.getPosTan(getSunPositionProgress() * pathMeasure.getLength(), pos, null);
         float sunLeft = pos[0] - (SUN_SIZE / 2f);
@@ -165,6 +131,9 @@ public class SunArcView extends View {
         sunDrawable.draw(canvas);
 
         // 绘制文本
+        Paint textPaint = new Paint();
+        textPaint.setColor(ContentUtil.COLOR_TRANSPARENT_WHITE);
+        textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTextSize(arcRadius * 0.08f);
         String sunriseStr = "日出  " + sunriseTime;
         String sunsetStr = "日落  " + sunsetTime;

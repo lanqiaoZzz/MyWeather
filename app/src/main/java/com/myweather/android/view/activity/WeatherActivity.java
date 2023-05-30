@@ -8,6 +8,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +23,8 @@ import android.widget.Toast;
 import com.myweather.android.R;
 import com.myweather.android.gson.AirNow;
 import com.myweather.android.gson.Daily;
+import com.myweather.android.gson.Hourly;
+import com.myweather.android.gson.HourlyForecast;
 import com.myweather.android.gson.WeatherForecast;
 import com.myweather.android.gson.WeatherNow;
 import com.myweather.android.util.ContentUtil;
@@ -56,6 +60,8 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView weatherInfoText;
     private TextView airInfoText;
 
+    private LinearLayout hourlyForecastLayout;
+
     private LinearLayout forecastLayout;
     private TextView pm25Text;
     private TextView comfortText;
@@ -68,7 +74,6 @@ public class WeatherActivity extends AppCompatActivity {
 
     private SunArcView sunArcView;
 
-
     public SwipeRefreshLayout swipeRefresh;
     private String mWeatherID;
 
@@ -76,7 +81,8 @@ public class WeatherActivity extends AppCompatActivity {
     private Button navButton;
 
     private static String countyName;
-
+    private Date sunriseDate;
+    private Date sunsetDate;
 
     public static void setCountyName(String countyName) {
         WeatherActivity.countyName = countyName;
@@ -100,6 +106,8 @@ public class WeatherActivity extends AppCompatActivity {
         weatherInfoText = findViewById(R.id.weather_info_text);
         airInfoText = findViewById(R.id.air_info_text);
 
+        hourlyForecastLayout = findViewById(R.id.hourly_forecast_layout);
+
         forecastLayout = findViewById(R.id.forecast_layout);
 
         airQualityView = findViewById(R.id.air_quality_view);
@@ -118,6 +126,8 @@ public class WeatherActivity extends AppCompatActivity {
         Map<String, ?> map = prefs.getAll();
         if (Utility.isAllValueNotNull(map)) {
             // 有缓存时直接解析天气数据
+            showWeatherInfo(map.get("weather_forecast").toString());
+
             for (String key: map.keySet()) {
                 if (key.equals("county_name")) {
                     countyName = map.get(key).toString();
@@ -125,7 +135,7 @@ public class WeatherActivity extends AppCompatActivity {
                 } else if (key.equals("weather_id")) {
                     mWeatherID = map.get(key).toString();
                 }
-                else {
+                else if (!key.equals("weather_forecast")) {
                     showWeatherInfo(map.get(key).toString());
                 }
             }
@@ -152,17 +162,30 @@ public class WeatherActivity extends AppCompatActivity {
                 weatherID + "&key=" + ContentUtil.API_KEY;
         String weatherForecastUrl = "https://devapi.qweather.com/v7/weather/7d?location=" +
                 weatherID + "&key=" + ContentUtil.API_KEY;
+        String hourlyForecastUrl = "https://devapi.qweather.com/v7/weather/24h?location=" +
+                weatherID + "&key=" + ContentUtil.API_KEY;
 
         List<String> urlList = new ArrayList<>();
         urlList.add(weatherNowUrl);
         urlList.add(airNowUrl);
         urlList.add(weatherForecastUrl);
+        urlList.add(hourlyForecastUrl);
 
         HttpUtil.sendMultiOkHttpRequest(urlList, new MultiRequestCallback() {
             @Override
             public void onResponse(List<Response> responseList) throws IOException {
+                // 调整返回数据的顺序：将天气预报信息置于最前面
+                List<String> responseTextList = new ArrayList<>(4);
                 for(Response response: responseList) {
                     String responseText = response.body().string();
+                    if (responseText.contains("daily")) {
+                        responseTextList.add(0, responseText);
+                    } else {
+                        responseTextList.add(responseText);
+                    }
+                }
+
+                for(String responseText: responseTextList) {
                     showWeatherInfo(responseText);
                 }
 
@@ -201,11 +224,14 @@ public class WeatherActivity extends AppCompatActivity {
         } else if (responseText.contains("daily")) {
             // 天气预测信息
             showWeatherForecastInfo(responseText);
+        } else if (responseText.contains("hourly")) {
+            // 逐小时预报信息
+            showHourlyForecastInfo(responseText);
         }
     }
 
     // 展示城市实时天气信息
-    public void showWeatherNowInfo(String responseText) {
+    private void showWeatherNowInfo(String responseText) {
         WeatherNow weatherNow =
                 ResponseUtil.handleWeatherResponse(responseText, WeatherNow.class);
         runOnUiThread(() -> {
@@ -221,10 +247,9 @@ public class WeatherActivity extends AppCompatActivity {
                 degreeText.setText(degree);
                 weatherInfoText.setText(weatherInfo);
 
-                Calendar calendar = Calendar.getInstance();
-                int hourNow = calendar.get(Calendar.HOUR_OF_DAY) + 1;
+                Date now = new Date();
 
-                if (hourNow > 6 && hourNow < 19) {
+                if (now.after(sunriseDate) && now.before(sunsetDate)) {
                     // 白天
                     frameLayout.setBackgroundResource(IconUtil.getDayBack(weatherNow.now.icon));
                 } else {
@@ -239,7 +264,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     // 展示城市天气质量信息
-    public void showAirNowInfo(String responseText) {
+    private void showAirNowInfo(String responseText) {
         AirNow airNow =
                 ResponseUtil.handleWeatherResponse(responseText, AirNow.class);
         runOnUiThread(() -> {
@@ -264,7 +289,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     // 展示城市天气预报信息
-    public void showWeatherForecastInfo(String responseText) {
+    private void showWeatherForecastInfo(String responseText) {
         WeatherForecast weatherForecast =
                 ResponseUtil.handleWeatherResponse(responseText, WeatherForecast.class);
         runOnUiThread(() -> {
@@ -278,8 +303,11 @@ public class WeatherActivity extends AppCompatActivity {
                 sunArcView.setSunriseTime(weatherToday.sunrise);
                 sunArcView.setSunsetTime(weatherToday.sunset);
 
+                sunriseDate = Utility.strToDate(weatherToday.sunrise);
+                sunsetDate = Utility.strToDate(weatherToday.sunset);
+
                 forecastLayout.removeAllViews();
-                for(int i = 1; i < weatherForecast.weatherForecastList.size(); i++) {
+                for (int i = 1; i < weatherForecast.weatherForecastList.size(); i++) {
                     Daily weatherForecastItem = weatherForecast.weatherForecastList.get(i);
 
                     View view = LayoutInflater.from(this).
@@ -343,4 +371,47 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void showHourlyForecastInfo(String responseText) {
+        HourlyForecast hourlyForecast =
+                ResponseUtil.handleWeatherResponse(responseText, HourlyForecast.class);
+        runOnUiThread(() -> {
+            if (hourlyForecast != null && hourlyForecast.status.equals("200")) {
+                SharedPreferences.Editor editor = PreferenceManager.
+                        getDefaultSharedPreferences(WeatherActivity.this).edit();
+                editor.putString("hourly_forecast", responseText);
+                editor.apply();
+
+                hourlyForecastLayout.removeAllViews();
+                for (Hourly hourlyForecastItem: hourlyForecast.hourlyForecastList) {
+                    View view = LayoutInflater.from(this).
+                            inflate(R.layout.hourly_forecast_item, hourlyForecastLayout, false);
+                    TextView hourText = view.findViewById(R.id.hour_text);
+                    ImageView iconHourlyWeather = view.findViewById(R.id.icon_hourly_weather);
+                    TextView tempText = view.findViewById(R.id.temp_text);
+
+                    hourText.setText(hourlyForecastItem.fxTime.substring(11, 16));
+
+                    Date current = Utility.strToDate(hourlyForecastItem.fxTime.substring(11, 16));
+                    if (current.after(sunriseDate) && current.before(sunsetDate)) {
+                        // 白天
+                        iconHourlyWeather.setImageResource(IconUtil.getDayIcon(hourlyForecastItem.icon));
+                    } else {
+                        //夜晚
+                        iconHourlyWeather.setImageResource(IconUtil.getNightIcon(hourlyForecastItem.icon));
+                    }
+
+                    tempText.setText(hourlyForecastItem.temp + "℃");
+
+                    hourlyForecastLayout.addView(view);
+                }
+
+            } else {
+                Toast.makeText(WeatherActivity.this,
+                        "获取天气预测信息失败", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
 }

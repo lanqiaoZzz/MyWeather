@@ -47,7 +47,7 @@ public class AirQualityView extends View {
         Paint paint = new Paint();
         paint.setShader(gradient);
         paint.setStyle(Paint.Style.STROKE);
-        float strokeWidth = radius * 0.09f;    // 圆弧宽度
+        float strokeWidth = radius * 0.09f;     // 圆弧宽度
         paint.setStrokeWidth(strokeWidth);
 
         float startAngle = 135;                 // 圆弧起始角度

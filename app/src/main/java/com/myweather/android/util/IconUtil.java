@@ -23,48 +23,6 @@ public class IconUtil {
             case "104":
                 imageId = R.mipmap.icon_104d;
                 break;
-            case "200":
-                imageId = R.mipmap.icon_200d;
-                break;
-            case "201":
-                imageId = R.mipmap.icon_210d;
-                break;
-            case "202":
-                imageId = R.mipmap.icon_202d;
-                break;
-            case "203":
-                imageId = R.mipmap.icon_203d;
-                break;
-            case "204":
-                imageId = R.mipmap.icon_204d;
-                break;
-            case "205":
-                imageId = R.mipmap.icon_205d;
-                break;
-            case "206":
-                imageId = R.mipmap.icon_206d;
-                break;
-            case "207":
-                imageId = R.mipmap.icon_207d;
-                break;
-            case "208":
-                imageId = R.mipmap.icon_208d;
-                break;
-            case "209":
-                imageId = R.mipmap.icon_209d;
-                break;
-            case "210":
-                imageId = R.mipmap.icon_210d;
-                break;
-            case "211":
-                imageId = R.mipmap.icon_211d;
-                break;
-            case "212":
-                imageId = R.mipmap.icon_212d;
-                break;
-            case "213":
-                imageId = R.mipmap.icon_213d;
-                break;
             case "300":
                 imageId = R.mipmap.icon_300d;
                 break;
@@ -219,68 +177,20 @@ public class IconUtil {
     public static int getNightIcon(String iconNight) {
         int imageId;
         switch (iconNight) {
-            case "100":
-                imageId = R.mipmap.icon_100n;
-                break;
-            case "101":
-                imageId = R.mipmap.icon_101n;
-                break;
-            case "102":
-                imageId = R.mipmap.icon_102n;
-                break;
-            case "103":
-                imageId = R.mipmap.icon_103n;
-                break;
             case "104":
                 imageId = R.mipmap.icon_104n;
                 break;
-            case "200":
-                imageId = R.mipmap.icon_200n;
+            case "150":
+                imageId = R.mipmap.icon_150n;
                 break;
-            case "201":
-                imageId = R.mipmap.icon_210n;
+            case "151":
+                imageId = R.mipmap.icon_151n;
                 break;
-            case "202":
-                imageId = R.mipmap.icon_202n;
+            case "152":
+                imageId = R.mipmap.icon_152n;
                 break;
-            case "203":
-                imageId = R.mipmap.icon_203n;
-                break;
-            case "204":
-                imageId = R.mipmap.icon_204n;
-                break;
-            case "205":
-                imageId = R.mipmap.icon_205n;
-                break;
-            case "206":
-                imageId = R.mipmap.icon_206n;
-                break;
-            case "207":
-                imageId = R.mipmap.icon_207n;
-                break;
-            case "208":
-                imageId = R.mipmap.icon_208n;
-                break;
-            case "209":
-                imageId = R.mipmap.icon_209n;
-                break;
-            case "210":
-                imageId = R.mipmap.icon_210n;
-                break;
-            case "211":
-                imageId = R.mipmap.icon_211n;
-                break;
-            case "212":
-                imageId = R.mipmap.icon_212n;
-                break;
-            case "213":
-                imageId = R.mipmap.icon_213n;
-                break;
-            case "300":
-                imageId = R.mipmap.icon_300n;
-                break;
-            case "301":
-                imageId = R.mipmap.icon_301n;
+            case "153":
+                imageId = R.mipmap.icon_153n;
                 break;
             case "302":
                 imageId = R.mipmap.icon_302n;
@@ -333,6 +243,12 @@ public class IconUtil {
             case "318":
                 imageId = R.mipmap.icon_318n;
                 break;
+            case "350":
+                imageId = R.mipmap.icon_350n;
+                break;
+            case "351":
+                imageId = R.mipmap.icon_351n;
+                break;
             case "399":
                 imageId = R.mipmap.icon_399n;
                 break;
@@ -354,12 +270,6 @@ public class IconUtil {
             case "405":
                 imageId = R.mipmap.icon_405n;
                 break;
-            case "406":
-                imageId = R.mipmap.icon_406n;
-                break;
-            case "407":
-                imageId = R.mipmap.icon_407n;
-                break;
             case "408":
                 imageId = R.mipmap.icon_408n;
                 break;
@@ -368,6 +278,12 @@ public class IconUtil {
                 break;
             case "410":
                 imageId = R.mipmap.icon_410n;
+                break;
+            case "456":
+                imageId = R.mipmap.icon_456n;
+                break;
+            case "457":
+                imageId = R.mipmap.icon_457n;
                 break;
             case "499":
                 imageId = R.mipmap.icon_499n;
