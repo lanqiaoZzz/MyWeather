@@ -6,12 +6,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -50,6 +54,7 @@ import okhttp3.Response;
 public class WeatherActivity extends AppCompatActivity {
 
     private FrameLayout frameLayout;
+    private ImageView backImg;
 
     private ScrollView weatherLayout;
     private TextView titleCity;
@@ -75,6 +80,8 @@ public class WeatherActivity extends AppCompatActivity {
     private SunArcView sunArcView;
 
     public SwipeRefreshLayout swipeRefresh;
+    public TextView updateInfoText;
+
     private String mWeatherID;
 
     public DrawerLayout drawerLayout;
@@ -94,6 +101,7 @@ public class WeatherActivity extends AppCompatActivity {
         setContentView(R.layout.activity_weather);
 
         frameLayout = findViewById(R.id.frame_layout);
+        backImg = findViewById(R.id.back_image);
 
         weatherLayout = findViewById(R.id.weather_layout);
         weatherLayout.setVisibility(View.INVISIBLE);
@@ -118,6 +126,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         swipeRefresh = findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        updateInfoText = findViewById(R.id.update_info_text);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navButton = findViewById(R.id.nav_button);
@@ -125,29 +134,26 @@ public class WeatherActivity extends AppCompatActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Map<String, ?> map = prefs.getAll();
         if (Utility.isAllValueNotNull(map)) {
-            // 有缓存时直接解析天气数据
-            showWeatherInfo(map.get("weather_forecast").toString());
-
-            for (String key: map.keySet()) {
-                if (key.equals("county_name")) {
-                    countyName = map.get(key).toString();
-                    countyText.setText(countyName);
-                } else if (key.equals("weather_id")) {
-                    mWeatherID = map.get(key).toString();
-                }
-                else if (!key.equals("weather_forecast")) {
-                    showWeatherInfo(map.get(key).toString());
-                }
-            }
-            weatherLayout.setVisibility(View.VISIBLE);
+            countyName = map.get("county_name").toString();
+            requestWeather(map.get("weather_id").toString());
         } else {
-            // 无缓存时去服务器查询天气
-            String weatherID = getIntent().getStringExtra("weather_id");
-            requestWeather(weatherID);
+            requestWeather(getIntent().getStringExtra("weather_id"));
         }
 
         // 手动刷新
-        swipeRefresh.setOnRefreshListener(() -> requestWeather(mWeatherID));
+        swipeRefresh.setOnRefreshListener(() -> {
+            requestWeather(mWeatherID);
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+            String curTime = format.format(calendar.getTime());
+            updateInfoText.setText(curTime + "  更新成功");
+            updateInfoText.setVisibility(View.VISIBLE);
+
+            new Handler().postDelayed(() -> {
+                updateInfoText.setVisibility(View.INVISIBLE);
+            }, 2000);
+        });
 
         navButton.setOnClickListener(view -> drawerLayout.openDrawer(GravityCompat.START));
     }
@@ -236,12 +242,6 @@ public class WeatherActivity extends AppCompatActivity {
                 ResponseUtil.handleWeatherResponse(responseText, WeatherNow.class);
         runOnUiThread(() -> {
             if (weatherNow != null && weatherNow.status.equals("200")) {
-                // 保存实时天气信息
-                SharedPreferences.Editor editor = PreferenceManager.
-                        getDefaultSharedPreferences(WeatherActivity.this).edit();
-                editor.putString("weather_now", responseText);
-                editor.apply();
-
                 String degree = weatherNow.now.temperature;
                 String weatherInfo = weatherNow.now.info;
                 degreeText.setText(degree);
@@ -251,10 +251,12 @@ public class WeatherActivity extends AppCompatActivity {
 
                 if (now.after(sunriseDate) && now.before(sunsetDate)) {
                     // 白天
-                    frameLayout.setBackgroundResource(IconUtil.getDayBack(weatherNow.now.icon));
+                    backImg.setImageResource(IconUtil.getDayBack(weatherNow.now.icon));
+                    // frameLayout.setBackgroundResource(IconUtil.getDayBack(weatherNow.now.icon));
                 } else {
                     // 夜晚
-                    frameLayout.setBackgroundResource(IconUtil.getNightBack(weatherNow.now.icon));
+                    // frameLayout.setBackgroundResource(IconUtil.getNightBack(weatherNow.now.icon));
+                    backImg.setImageResource(IconUtil.getNightBack(weatherNow.now.icon));
                 }
             } else {
                 Toast.makeText(WeatherActivity.this,
@@ -269,11 +271,6 @@ public class WeatherActivity extends AppCompatActivity {
                 ResponseUtil.handleWeatherResponse(responseText, AirNow.class);
         runOnUiThread(() -> {
             if (airNow != null && airNow.status.equals("200")) {
-                SharedPreferences.Editor editor = PreferenceManager.
-                        getDefaultSharedPreferences(WeatherActivity.this).edit();
-                editor.putString("air_now", responseText);
-                editor.apply();
-
                 String airInfo = "  空气" + airNow.now.category;
                 airInfoText.setText(airInfo);
 
@@ -294,11 +291,6 @@ public class WeatherActivity extends AppCompatActivity {
                 ResponseUtil.handleWeatherResponse(responseText, WeatherForecast.class);
         runOnUiThread(() -> {
             if (weatherForecast != null && weatherForecast.status.equals("200")) {
-                SharedPreferences.Editor editor = PreferenceManager.
-                        getDefaultSharedPreferences(WeatherActivity.this).edit();
-                editor.putString("weather_forecast", responseText);
-                editor.apply();
-
                 Daily weatherToday = weatherForecast.weatherForecastList.get(0);
                 sunArcView.setSunriseTime(weatherToday.sunrise);
                 sunArcView.setSunsetTime(weatherToday.sunset);
@@ -377,11 +369,6 @@ public class WeatherActivity extends AppCompatActivity {
                 ResponseUtil.handleWeatherResponse(responseText, HourlyForecast.class);
         runOnUiThread(() -> {
             if (hourlyForecast != null && hourlyForecast.status.equals("200")) {
-                SharedPreferences.Editor editor = PreferenceManager.
-                        getDefaultSharedPreferences(WeatherActivity.this).edit();
-                editor.putString("hourly_forecast", responseText);
-                editor.apply();
-
                 hourlyForecastLayout.removeAllViews();
                 for (Hourly hourlyForecastItem: hourlyForecast.hourlyForecastList) {
                     View view = LayoutInflater.from(this).
@@ -413,5 +400,4 @@ public class WeatherActivity extends AppCompatActivity {
         });
 
     }
-
 }

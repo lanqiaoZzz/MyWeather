@@ -22,11 +22,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Map<String, ?> map = prefs.getAll();
-        if (Utility.isAllValueNotNull(map)) {
+        if (prefs.getString("weather_id", null) != null) {
+            // 之前选择过城市
             Intent intent = new Intent(this, WeatherActivity.class);
             startActivity(intent);
             finish();
         }
+
+//        Map<String, ?> map = prefs.getAll();
+//        if (Utility.isAllValueNotNull(map)) {
+//            Intent intent = new Intent(this, WeatherActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
     }
 }
