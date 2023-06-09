@@ -18,11 +18,7 @@ import com.myweather.android.R;
 import com.myweather.android.util.ContentUtil;
 import com.myweather.android.util.Utility;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class SunArcView extends View {
 

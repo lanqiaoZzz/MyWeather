@@ -6,18 +6,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -53,12 +47,9 @@ import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
 
-    private FrameLayout frameLayout;
     private ImageView backImg;
 
     private ScrollView weatherLayout;
-    private TextView titleCity;
-    private TextView titleUpdateTime;
 
     private TextView countyText;
     private TextView degreeText;
@@ -68,10 +59,6 @@ public class WeatherActivity extends AppCompatActivity {
     private LinearLayout hourlyForecastLayout;
 
     private LinearLayout forecastLayout;
-    private TextView pm25Text;
-    private TextView comfortText;
-    private TextView carWashText;
-    private TextView sportText;
 
     private AirQualityView airQualityView;
     private TextView aqiText;
@@ -100,14 +87,10 @@ public class WeatherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
 
-        frameLayout = findViewById(R.id.frame_layout);
         backImg = findViewById(R.id.back_image);
 
         weatherLayout = findViewById(R.id.weather_layout);
         weatherLayout.setVisibility(View.INVISIBLE);
-
-        titleCity =  findViewById(R.id.title_city);
-        titleUpdateTime = findViewById(R.id.title_update_time);
 
         countyText = findViewById(R.id.county_text);
         degreeText = findViewById(R.id.degree_text);
@@ -140,7 +123,7 @@ public class WeatherActivity extends AppCompatActivity {
             requestWeather(getIntent().getStringExtra("weather_id"));
         }
 
-        // 手动刷新
+        // 手动更新
         swipeRefresh.setOnRefreshListener(() -> {
             requestWeather(mWeatherID);
 
@@ -252,10 +235,8 @@ public class WeatherActivity extends AppCompatActivity {
                 if (now.after(sunriseDate) && now.before(sunsetDate)) {
                     // 白天
                     backImg.setImageResource(IconUtil.getDayBack(weatherNow.now.icon));
-                    // frameLayout.setBackgroundResource(IconUtil.getDayBack(weatherNow.now.icon));
                 } else {
                     // 夜晚
-                    // frameLayout.setBackgroundResource(IconUtil.getNightBack(weatherNow.now.icon));
                     backImg.setImageResource(IconUtil.getNightBack(weatherNow.now.icon));
                 }
             } else {

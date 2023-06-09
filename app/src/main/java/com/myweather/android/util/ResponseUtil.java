@@ -58,7 +58,7 @@ public class ResponseUtil {
     }
 
     // 解析和处理服务器返回的县级数据
-    public static boolean handleCountyResponse(String response, int cityId) {
+    public static boolean handleCountyResponse(String response, int cityID) {
         if (!TextUtils.isEmpty(response)) {
             try {
                 JSONArray allCounties = new JSONArray(response);
@@ -68,7 +68,7 @@ public class ResponseUtil {
 
                     county.setCountyName(countyObject.getString("name"));
                     county.setWeatherId(countyObject.getString("weather_id"));
-                    county.setCityId(cityId);
+                    county.setCityId(cityID);
                     county.save();
                 }
                 return true;
@@ -90,18 +90,4 @@ public class ResponseUtil {
         }
         return null;
     }
-
-//    // 将返回的 JSON 数据解析成 Weather 实体类
-//    public static WeatherForecast handleWeatherResponse(String response) {
-//        try {
-//            JSONObject jsonObject = new JSONObject(response);
-////            JSONArray jsonArray = jsonObject.getJSONArray("daily");
-////            String weatherContent = jsonArray.getJSONObject(0).toString();
-//            String weatherContent = jsonObject.toString();
-//            return new Gson().fromJson(weatherContent, WeatherForecast.class);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 }

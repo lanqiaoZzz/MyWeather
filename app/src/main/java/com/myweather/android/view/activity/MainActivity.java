@@ -9,9 +9,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.myweather.android.R;
-import com.myweather.android.util.Utility;
-
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -28,12 +25,5 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-
-//        Map<String, ?> map = prefs.getAll();
-//        if (Utility.isAllValueNotNull(map)) {
-//            Intent intent = new Intent(this, WeatherActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
     }
 }

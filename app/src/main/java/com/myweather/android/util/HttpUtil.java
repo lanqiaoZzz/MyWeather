@@ -24,7 +24,6 @@ public class HttpUtil {
                                               MultiRequestCallback callback) {
         List<Response> responseList = new ArrayList<>();
         AtomicInteger count = new AtomicInteger(addressList.size());
-
         OkHttpClient client = new OkHttpClient();
         for(String address: addressList) {
             Request request = new Request.Builder().url(address).build();

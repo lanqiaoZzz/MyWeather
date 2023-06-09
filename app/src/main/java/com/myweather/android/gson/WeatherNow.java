@@ -19,10 +19,4 @@ public class WeatherNow {
         @SerializedName("text")
         public String info;
     }
-
-    public void deepCopy(WeatherNow weatherNow) {
-        this.status = weatherNow.status;
-        this.now.temperature = weatherNow.now.temperature;
-        this.now.info = weatherNow.now.info;
-    }
 }

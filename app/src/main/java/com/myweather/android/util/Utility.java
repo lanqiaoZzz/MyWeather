@@ -2,8 +2,6 @@ package com.myweather.android.util;
 
 import android.util.Pair;
 
-import androidx.versionedparcelable.VersionedParcel;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
